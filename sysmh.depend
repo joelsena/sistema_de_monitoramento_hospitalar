@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1638062651 source:c:\users\joelsena\c_projects\sistema_de_monitoramento_hospitalar\main_code.c
+1638131118 source:c:\users\joelsena\c_projects\sistema_de_monitoramento_hospitalar\main_code.c
 	<gtk/gtk.h>
 	<stdlib.h>
 	<stdbool.h>
@@ -2999,11 +2999,11 @@
 
 1632557437 c:\msys64\mingw64\include\gtk-3.0\gtk\gtk-autocleanups.h
 
-1638062516 c:\users\joelsena\c_projects\sistema_de_monitoramento_hospitalar\gtk_handler_functions.h
+1638129690 c:\users\joelsena\c_projects\sistema_de_monitoramento_hospitalar\gtk_handler_functions.h
 	<gtk/gtk.h>
 	<stdbool.h>
 
-1638062763 source:c:\users\joelsena\c_projects\sistema_de_monitoramento_hospitalar\gtk_handler_functions.c
+1638131532 source:c:\users\joelsena\c_projects\sistema_de_monitoramento_hospitalar\gtk_handler_functions.c
 	"gtk_handler_functions.h"
 	<gtk/gtk.h>
 	<stdlib.h>

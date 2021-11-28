@@ -37,6 +37,10 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="gtk_handler_functions.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="gtk_handler_functions.h" />
 		<Unit filename="main_code.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -8,6 +8,7 @@ GtkWidget *window;
 GtkStack *stack;
 GtkNotebook *notebook;
 GtkListStore *mod_covid_list;
+GtkListStore *mod_risk_group_list;
 
 
 
@@ -25,7 +26,16 @@ void on_login_button_clicked(GtkWidget *widget, gpointer data) {
 }
 
 void on_button_covid_pacients_clicked(GtkWidget *widget, gpointer data) {
-    gtk_main_quit(); // Comando para fechar a aplicação
+    GtkTreeIter *iter;
+
+    // Limpa p list storage para não repetir na UI
+    gtk_list_store_clear(mod_covid_list);
+
+    int res = read_file_and_display_at_uilist("lista_de_pacientes_com_covid.txt", mod_covid_list, iter);
+
+    if(res == -1) {
+        display_message("Aviso", "Problemas na leitura do arquivo!", "dialog-error", builder);
+    }
 }
 
 void on_button_risk_group_clicked(GtkWidget *widget, gpointer data) {
@@ -38,7 +48,8 @@ void on_button_add_tools_clicked(GtkWidget *widget, gpointer data) {
 }
 
 void on_button_quit_tools_clicked(GtkWidget *widget, gpointer data) {
-    g_object_set(window, "title", "Autenticação", NULL);
+    g_object_set(window, "title", "Autenticacao", NULL);
+    g_object_set(window, "icon_name", "changes-prevent", NULL);
     gtk_stack_set_visible_child_name(stack, "view_login");
 }
 
@@ -59,7 +70,7 @@ void on_add_patient_save_button_clicked(GtkWidget *widget, gpointer data) {
     char *pat_address_bairro  = gtk_entry_get_text(gtk_builder_get_object(builder, "patient_address_bairro"));
     char *pat_address_city  = gtk_entry_get_text(gtk_builder_get_object(builder, "patient_address_city"));
     char *pat_address_state  = gtk_entry_get_text(gtk_builder_get_object(builder, "patient_address_state"));
-    char *pat_address_street  = gtk_entry_get_text(gtk_builder_get_object(builder, "patient_address_street"));
+    char *pat_address_logradouro  = gtk_entry_get_text(gtk_builder_get_object(builder, "patient_address_logradouro"));
     int *pat_address_number  = gtk_entry_get_text(gtk_builder_get_object(builder, "patient_address_number"));
 
     Patient patient;
@@ -78,7 +89,7 @@ void on_add_patient_save_button_clicked(GtkWidget *widget, gpointer data) {
         strcpy(patient.address.bairro, pat_address_bairro);
         strcpy(patient.address.city, pat_address_city);
         strcpy(patient.address.state, pat_address_state);
-        strcpy(patient.address.street, pat_address_street);
+        strcpy(patient.address.logradouro, pat_address_logradouro);
         patient.address.number = atoi(pat_address_number);
 
         int pat_birth_year;
@@ -99,9 +110,9 @@ void on_add_patient_save_button_clicked(GtkWidget *widget, gpointer data) {
         }
 
         patient.age = calculate_age(pat_birth_year);
-        patient.has_comorbidade = has_comorbidade(patient.comobirdade);
-        // TO-DO: Verifica se pertence ao grupo de risco
-        if(is_risk_group(patient.age) != 0) {
+        // patient.has_comorbidade = has_comorbidade(patient.comobirdade);
+        // Verifica se pertence ao grupo de risco
+        if(is_risk_group(patient.age, patient.comobirdade) == 1) {
             // Grupo de risco
             write_in_file("lista_de_pacientes_com_covid_grupo_de_risco.txt", &patient, builder);
         } else {
@@ -150,6 +161,7 @@ int main(int argc, char *argv[]) {
     stack = GTK_STACK(gtk_builder_get_object(builder, "stack"));
     window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
     mod_covid_list = GTK_LIST_STORE(gtk_builder_get_object(builder, "covid_patients_list"));
+    mod_risk_group_list = GTK_LIST_STORE(gtk_builder_get_object(builder, "risk_group_list"));
 
     gtk_widget_show_all(window);
     gtk_main();
