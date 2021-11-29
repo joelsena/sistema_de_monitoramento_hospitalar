@@ -30,7 +30,7 @@ typedef struct {
 void display_message(char [100], char [100], char [100], GtkBuilder *);
 int read_file_and_display_at_uilist(char *, GtkListStore *, GtkTreeIter *);
 void write_in_file(char *, Patient *, GtkBuilder *);
-char* concatenar(char *, char *);
+char* concat(const char *, const char *);
 int is_risk_group(int, char [150]);
 int has_comorbidade(char [150]);
 int calculate_age(int);

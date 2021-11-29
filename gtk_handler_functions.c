@@ -19,19 +19,29 @@ void display_message(char text[100], char secondary_text[100], char icon_name[10
     gtk_widget_hide(msg_dialog);
 }
 
-char* concatenar(char* s1, char* s2) {
-    int i, j;
+char* concat(const char *s1, const char *s2) {
+    const size_t len1 = strlen(s1);
+    const size_t len2 = strlen(s2);
+    char *result = malloc(len1 + len2 + 1); // +1 para o terminador null
 
-    printf("Tamanho, %s %s", s1, s2);
-    for (i = 0; s1[i] != '\0'; ++i);
+    memcpy(result, s1, len1);
+    memcpy(result + len1, s2, len2 + 1); // +1 para copiar o terminador null
+    return result;
+}
 
-    printf("Concatenando");
-    for (j = 0; s2[j] != '\0'; ++j, ++i) {
-        s1[i] = s2[j];
+char* substring(const char *s1, int init) {
+    int i = init, c;
+
+    const size_t len = strlen(s1) - 3; // -3 para tirar a parte dos identificadores
+    // printf("Tamanho: %d\n", len);
+    char *res = malloc(len + 1);
+
+    for(c = 0; c < len; c++, i++) {
+        res[c] = s1[i];
     }
-    s1[i] = '\0';
-    printf("String1: %s\n String2: %s", s1, s2);
-    return &s1;
+
+    res[c] = '\0';
+    return res;
 }
 
 void write_in_file(char *filename, Patient *patient, GtkBuilder *builder) {
@@ -85,20 +95,66 @@ int read_file_and_display_at_uilist(char *filename, GtkListStore *mod_list, GtkT
 
                 // Maneira de percorrer o splited_linha
                 while(splited_linha) { // enquanto for != NULL
-                    /* char split_cpy[50];
-                    printf("Token: %s\n", splited_linha);
-                    strcpy(split_cpy, splited_linha);
-                    printf("Copia Token: %s\n", split_cpy);
-                    char *att_id = strtok(split_cpy, "_");
-                    printf("ID: %s\n", att_id);
-                    while(att_id) {
-                        att_id = strtok(NULL, "_");
-                    } */
-                    printf("Token: %s\n", splited_linha);
+                    char split_cpy[50];
+                    char att_id[3] = {splited_linha[0], splited_linha[1], '\0'};
+                    char *att_data = substring(splited_linha, 3);
 
+                    /* printf("Token: %s\n", splited_linha);
+                    printf("ID: %s\n", att_id);
+                    printf("Data: %s\n", att_data); */
+
+                    if(strcmp(att_id, "NO") == 0) {
+                        // name
+                        strcpy(r_patient.name, att_data);
+                        // printf("Name: %s\n", r_patient.name);
+                    } else if(strcmp(att_id, "CP") == 0) {
+                        // CPF
+                        strcpy(r_patient.cpf, att_data);
+                        // printf("CPF: %s\n", r_patient.cpf);
+                    } else if(strcmp(att_id, "DB") == 0) {
+                        // Date_of_birth
+                        strcpy(r_patient.date_of_birth, att_data);
+                        // printf("date_b: %s\n", r_patient.date_of_birth);
+                    } else if(strcmp(att_id, "EM") == 0) {
+                        // Email
+                        strcpy(r_patient.email, att_data);
+                        // printf("Email: %s\n", r_patient.email);
+                    } else if(strcmp(att_id, "DD") == 0) {
+                        // Date_of_diagnostic
+                        strcpy(r_patient.date_of_diagnostic, att_data);
+                        // printf("DD: %s\n", r_patient.date_of_diagnostic);
+                    } else if(strcmp(att_id, "CM") == 0) {
+                        // Comorbidade
+                        strcpy(r_patient.comobirdade, att_data);
+                        // printf("Comorbidade: %s\n", r_patient.comobirdade);
+                    } else if(strcmp(att_id, "AG") == 0) {
+                        // Idade
+                        r_patient.age = atoi(att_data);
+                        // printf("Name: %d\n", r_patient.age);
+                    } else {
+                        // printf("Default\n");
+                    }
                     splited_linha = strtok(NULL, ";\n");
                 }
+                bool hcm = FALSE;
+                if(has_comorbidade(r_patient.comobirdade) == 1) {
+                    hcm = TRUE;
+                }
+
                 // Acaba a linha
+                // Somente adiciona uma linha na nossa lista
+                gtk_list_store_append(mod_list, &iter);
+                // Atribui os dados nas colunas respectivas confliguradas no glade anteriormente
+                gtk_list_store_set(mod_list, &iter,
+                    0, r_patient.cpf,
+                    1, r_patient.name,
+                    2, r_patient.date_of_birth,
+                    3, r_patient.email,
+                    4, r_patient.date_of_diagnostic,
+                    5, hcm,
+                    6, r_patient.age,
+                    -1
+                );
             }
         }
     }
@@ -110,7 +166,7 @@ int read_file_and_display_at_uilist(char *filename, GtkListStore *mod_list, GtkT
 }
 
 int has_comorbidade(char comorbidade[150]) {
-    if(strcmp(comorbidade, "") == 0) {
+    if(strcmp(comorbidade, "") == 0 || strcmp(comorbidade, "{}") == 0) {
         return 0;
     } else {
         return 1;

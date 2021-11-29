@@ -39,7 +39,16 @@ void on_button_covid_pacients_clicked(GtkWidget *widget, gpointer data) {
 }
 
 void on_button_risk_group_clicked(GtkWidget *widget, gpointer data) {
-    gtk_main_quit(); // Comando para fechar a aplicação
+    GtkTreeIter *iter;
+
+    // Limpa p list storage para não repetir na UI
+    gtk_list_store_clear(mod_risk_group_list);
+
+    int res = read_file_and_display_at_uilist("lista_de_pacientes_com_covid_grupo_de_risco.txt", mod_risk_group_list, iter);
+
+    if(res == -1) {
+        display_message("Aviso", "Problemas na leitura do arquivo!", "dialog-error", builder);
+    }
 }
 
 void on_button_add_tools_clicked(GtkWidget *widget, gpointer data) {
